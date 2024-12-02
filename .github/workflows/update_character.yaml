@@ -1,43 +1,54 @@
 name: Update and Restart Tmux Session
-
-on:
+'on':
   push:
     branches:
       - main
     paths:
       - characters/helen.json
-
 jobs:
   update-tmux-session:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Install sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+      - name: 'SSH into Server, Update File, and Restart Tmux'
+        env:
+          SSH_USER: '${{ secrets.SSH_USER }}'
+          SSH_PASS: '${{ secrets.SSH_PASS }}'
+          SSH_HOST: '${{ secrets.SSH_HOST }}'
+          REMOTE_FILE_PATH: '${{ secrets.REMOTE_FILE_PATH }}'
+          TMUX_SESSION: '${{ secrets.TMUX_SESSION }}'
+          GITHUB_FILE_URL: >-
+            https://raw.githubusercontent.com/inhabitantszone/characters-definition/refs/heads/main/characters/helen.json
+        run: >
+          # Use sshpass to SSH into the server
 
-    - name: Install sshpass
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y sshpass
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no
+          "$SSH_USER@$SSH_HOST" << 'EOF'
 
-    - name: SSH into Server, Update File, and Restart Tmux
-      env:
-        SSH_USER: ${{ secrets.SSH_USER }}
-        SSH_PASS: ${{ secrets.SSH_PASS }}
-        SSH_HOST: ${{ secrets.SSH_HOST }}
-        REMOTE_FILE_PATH: ${{ secrets.REMOTE_FILE_PATH }}
-        TMUX_SESSION:  ${{ secrets.TMUX_SESSION }}
-        GITHUB_FILE_URL: https://raw.githubusercontent.com/inhabitantszone/characters-definition/refs/heads/main/characters/helen.json
-      run: |
-        # Use sshpass to SSH into the server
-        sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << EOF
           # Download the file from the GitHub repository
+
           curl -o "$REMOTE_FILE_PATH" "$GITHUB_FILE_URL"
 
-          # Create or attach to the tmux session
-          tmux has-session -t "$TMUX_SESSION" 2>/dev/null || tmux new-session -d -s "$TMUX_SESSION"
 
-          # Send commands to the tmux session
-          tmux send-keys -t "$TMUX_SESSION" C-c  # Stop the current node command
-          tmux send-keys -t "$TMUX_SESSION" "pnpm start --characters="../characters/helen.json" Enter
-        EOF
+          # Create or attach to the tmux session
+
+          tmux has-session -t "$TMUX_SESSION" 2>/dev/null || tmux new-session -d
+          -s "$TMUX_SESSION"
+
+
+          # Stop the current node command in the tmux session
+
+          tmux send-keys -t "$TMUX_SESSION" C-c
+
+
+          # Run the new command in the tmux session
+
+          tmux send-keys -t "$TMUX_SESSION" "pnpm start
+          --characters=\"../characters/helen.json\"" Enter
+
+          EOF
