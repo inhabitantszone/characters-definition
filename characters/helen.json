@@ -1,8 +1,3 @@
-Claro, aqui está o modelo ajustado com sua personagem, Helen, traduzido para português. As descrições e exemplos seguem o mesmo formato do modelo original, mas adaptados para a sua personagem e linguagem.
-
----
-
-```json
 {
     "name": "helen",
     "clients": ["discord"],
