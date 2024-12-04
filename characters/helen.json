@@ -1,6 +1,3 @@
-Com base na sua solicitação, atualizei o arquivo de personagem da Helen para incluir que ela tem um conhecimento rico sobre diferentes projetos e está apta a mencioná-los. Aqui está o arquivo atualizado:
-
-```json
 {
     "name": "Helen",
     "clients": ["discord"],
