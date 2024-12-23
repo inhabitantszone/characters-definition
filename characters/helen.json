@@ -1,7 +1,8 @@
 {
     "name": "Helen",
     "clients": [
-        "discord"
+        "discord",
+        "twitter"
     ],
     "modelProvider": "openai",
     "settings": {
